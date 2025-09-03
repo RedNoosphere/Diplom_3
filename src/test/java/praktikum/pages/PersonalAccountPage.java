@@ -1,5 +1,6 @@
 package praktikum.pages;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -21,6 +22,7 @@ public class PersonalAccountPage extends BasePage {
         super(driver);
     }
 
+    @Step("Проверка отображения раздела 'Профиль'")
     public boolean isProfileSectionDisplayed() {
         try {
             return profileSection.isDisplayed();
@@ -29,6 +31,7 @@ public class PersonalAccountPage extends BasePage {
         }
     }
 
+    @Step("Проверка загрузки страницы личного кабинета")
     public boolean isPageLoaded() {
         try {
             new WebDriverWait(driver, Duration.ofSeconds(5))

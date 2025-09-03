@@ -1,6 +1,6 @@
 package praktikum.pages;
 
-import org.openqa.selenium.By;
+import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -37,47 +37,58 @@ public class MainPage extends BasePage {
         super(driver);
     }
 
+    @Step("Клик по кнопке 'Войти в аккаунт'")
     public void clickLoginButton() {
         loginButton.click();
     }
 
+    @Step("Клик по кнопке 'Личный Кабинет'")
     public void clickPersonalAccountButton() {
         personalAccountButton.click();
     }
 
+    @Step("Клик по разделу 'Булки'")
     public void clickBunsSection() {
         bunsSection.click();
     }
 
+    @Step("Клик по разделу 'Соусы'")
     public void clickSaucesSection() {
         saucesSection.click();
     }
 
+    @Step("Клик по разделу 'Начинки'")
     public void clickFillingsSection() {
         fillingsSection.click();
     }
 
+    @Step("Получение текста активного раздела")
     public String getActiveSectionText() {
         return activeSection.getText();
     }
 
+    @Step("Получение элемента активного раздела")
+    public WebElement getActiveSectionElement() {
+        return activeSection;
+    }
+
+    @Step("Проверка загрузки главной страницы")
     public boolean isPageLoaded() {
         try {
+            // Ждем появления либо кнопки входа (для неавторизованного пользователя),
+            // либо кнопки оформления заказа (для авторизованного)
             new WebDriverWait(driver, Duration.ofSeconds(10))
-                    .until(ExpectedConditions.jsReturnsValue("return document.readyState === 'complete'"));
-
-            String currentUrl = driver.getCurrentUrl();
-            return currentUrl.equals("https://stellarburgers.nomoreparties.site/") ||
-                    currentUrl.equals("https://stellarburgers.nomoreparties.site") ||
-                    (currentUrl.contains("stellarburgers.nomoreparties.site") &&
-                            !currentUrl.contains("/login") &&
-                            !currentUrl.contains("/register") &&
-                            !currentUrl.contains("/account"));
+                    .until(ExpectedConditions.or(
+                            ExpectedConditions.visibilityOf(loginButton),
+                            ExpectedConditions.visibilityOf(placeOrderButton)
+                    ));
+            return true;
         } catch (Exception e) {
             return false;
         }
     }
 
+    @Step("Проверка авторизации пользователя")
     public boolean isUserLoggedIn() {
         try {
             // Проверяем несколько признаков того, что пользователь залогинен:
@@ -88,8 +99,7 @@ public class MainPage extends BasePage {
             // 2. Измененный текст в личном кабинете (если есть)
             boolean personalAccountTextChanged = false;
             try {
-                WebElement accountElement = driver.findElement(By.xpath("//p[text()='Личный Кабинет']"));
-                personalAccountTextChanged = !accountElement.getText().equals("Личный Кабинет");
+                personalAccountTextChanged = !personalAccountButton.getText().equals("Личный Кабинет");
             } catch (Exception e) {
                 // Игнорируем, если элемент не найден
             }

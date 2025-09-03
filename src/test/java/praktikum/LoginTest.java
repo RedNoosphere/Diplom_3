@@ -2,11 +2,15 @@ package praktikum;
 
 import io.qameta.allure.junit4.DisplayName;
 import org.junit.Test;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import praktikum.pages.ForgotPasswordPage;
 import praktikum.pages.LoginPage;
 import praktikum.pages.MainPage;
 import praktikum.pages.PersonalAccountPage;
 import praktikum.pages.RegisterPage;
+
+import java.time.Duration;
 
 import static org.junit.Assert.assertTrue;
 
@@ -21,14 +25,15 @@ public class LoginTest extends BaseTest {
         LoginPage loginPage = new LoginPage(driver);
         assertTrue("Должны быть на странице логина", loginPage.isPageLoaded());
 
-        loginPage.login(testUser.email, testUser.password);
+        loginPage.login(testUser.getEmail(), testUser.getPassword());
 
-        // Ждем завершения логина
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        // ✅ ЗАМЕНА SLEEP НА ЯВНЫЕ ОЖИДАНИЯ
+        // Ждем, пока пользователь авторизуется (появление кнопки "Оформить заказ" или изменение URL)
+        new WebDriverWait(driver, Duration.ofSeconds(5))
+                .until(ExpectedConditions.or(
+                        ExpectedConditions.urlContains("/account"),
+                        ExpectedConditions.urlToBe("https://stellarburgers.nomoreparties.site/")
+                ));
 
         // Проверяем, что авторизовались
         assertTrue("Должны быть авторизованы", isUserLoggedIn());
@@ -43,13 +48,14 @@ public class LoginTest extends BaseTest {
         LoginPage loginPage = new LoginPage(driver);
         assertTrue("Должны быть на странице логина", loginPage.isPageLoaded());
 
-        loginPage.login(testUser.email, testUser.password);
+        loginPage.login(testUser.getEmail(), testUser.getPassword());
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        // ✅ ЗАМЕНА SLEEP НА ЯВНЫЕ ОЖИДАНИЯ
+        new WebDriverWait(driver, Duration.ofSeconds(5))
+                .until(ExpectedConditions.or(
+                        ExpectedConditions.urlContains("/account"),
+                        ExpectedConditions.urlToBe("https://stellarburgers.nomoreparties.site/")
+                ));
 
         assertTrue("Должны быть авторизованы", isUserLoggedIn());
     }
@@ -72,13 +78,14 @@ public class LoginTest extends BaseTest {
         LoginPage returnedLoginPage = new LoginPage(driver);
         assertTrue("Должны вернуться на страницу логина", returnedLoginPage.isPageLoaded());
 
-        returnedLoginPage.login(testUser.email, testUser.password);
+        returnedLoginPage.login(testUser.getEmail(), testUser.getPassword());
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        // ✅ ЗАМЕНA SLEEP НА ЯВНЫЕ ОЖИДАНИЯ
+        new WebDriverWait(driver, Duration.ofSeconds(5))
+                .until(ExpectedConditions.or(
+                        ExpectedConditions.urlContains("/account"),
+                        ExpectedConditions.urlToBe("https://stellarburgers.nomoreparties.site/")
+                ));
 
         assertTrue("Должны быть авторизованы", isUserLoggedIn());
     }
@@ -101,13 +108,14 @@ public class LoginTest extends BaseTest {
         LoginPage returnedLoginPage = new LoginPage(driver);
         assertTrue("Должны вернуться на страницу логина", returnedLoginPage.isPageLoaded());
 
-        returnedLoginPage.login(testUser.email, testUser.password);
+        returnedLoginPage.login(testUser.getEmail(), testUser.getPassword());
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        // ✅ ЗАМЕНА SLEEP НА ЯВНЫЕ ОЖИДАНИЯ
+        new WebDriverWait(driver, Duration.ofSeconds(5))
+                .until(ExpectedConditions.or(
+                        ExpectedConditions.urlContains("/account"),
+                        ExpectedConditions.urlToBe("https://stellarburgers.nomoreparties.site/")
+                ));
 
         assertTrue("Должны быть авторизованы", isUserLoggedIn());
     }

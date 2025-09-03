@@ -1,5 +1,6 @@
 package praktikum.pages;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -33,34 +34,41 @@ public class LoginPage extends BasePage {
         super(driver);
     }
 
+    @Step("Ввод email: {email}")
     public void setEmail(String email) {
         emailField.clear();
         emailField.sendKeys(email);
     }
 
+    @Step("Ввод пароля")
     public void setPassword(String password) {
         passwordField.clear();
         passwordField.sendKeys(password);
     }
 
+    @Step("Клик по кнопке 'Войти'")
     public void clickLoginButton() {
         loginButton.click();
     }
 
+    @Step("Клик по ссылке 'Зарегистрироваться'")
     public void clickRegisterLink() {
         registerLink.click();
     }
 
+    @Step("Клик по ссылке 'Восстановить пароль'")
     public void clickForgotPasswordLink() {
         forgotPasswordLink.click();
     }
 
+    @Step("Выполнение входа с email: {email}")
     public void login(String email, String password) {
         setEmail(email);
         setPassword(password);
         clickLoginButton();
     }
 
+    @Step("Проверка загрузки страницы входа")
     public boolean isPageLoaded() {
         try {
             new WebDriverWait(driver, Duration.ofSeconds(5))

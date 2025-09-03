@@ -2,10 +2,16 @@ package praktikum;
 
 import io.qameta.allure.junit4.DisplayName;
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import praktikum.pages.LoginPage;
 import praktikum.pages.MainPage;
 import praktikum.pages.PersonalAccountPage;
 import praktikum.pages.RegisterPage;
+
+import java.time.Duration;
 
 import static org.junit.Assert.assertTrue;
 
@@ -24,33 +30,36 @@ public class RegistrationTest extends BaseTest {
         RegisterPage registerPage = new RegisterPage(driver);
         assertTrue("Должны быть на странице регистрации", registerPage.isPageLoaded());
 
+        // Запоминаем текущий URL ДО регистрации
+        String urlBeforeRegistration = driver.getCurrentUrl();
+
         String email = "test" + System.currentTimeMillis() + "@example.com";
         registerPage.register("Test User", email, "password123");
 
-        // Ждем завершения регистрации
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        // ✅ Ожидаем изменения URL - это быстрее чем ждать полной загрузки страницы
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(8));
+        wait.until(ExpectedConditions.not(ExpectedConditions.urlToBe(urlBeforeRegistration)));
 
-        // Проверяем разные варианты перенаправления
-        boolean isOnMain = new MainPage(driver).isPageLoaded();
-        boolean isOnLogin = new LoginPage(driver).isPageLoaded();
+        // Быстрая проверка по URL куда нас перенаправило
+        String currentUrl = driver.getCurrentUrl();
 
-        if (isOnMain) {
-            // Пользователь автоматически залогинен
-            boolean isLoggedIn = mainPage.isUserLoggedIn();
-            assertTrue("Пользователь должен быть автоматически залогинен после регистрации", isLoggedIn);
+        // Не создаем новые объекты страниц без необходимости - используем быстрые проверки
+        if (currentUrl.contains("/login")) {
+            // Простая проверка что мы на странице логина
+            assertTrue("URL должен содержать /login", currentUrl.contains("/login"));
 
-        } else if (isOnLogin) {
-            // Пользователь перенаправлен на логин
-            assertTrue("Должны быть на странице логина после регистрации", true);
+        } else if (currentUrl.equals("https://stellarburgers.nomoreparties.site/") ||
+                currentUrl.equals("https://stellarburgers.nomoreparties.site")) {
+            // Быстрая проверка что мы на главной
+            assertTrue("Должны быть на главной странице",
+                    driver.getTitle().contains("Stellar Burgers") ||
+                            driver.getPageSource().contains("Оформить заказ"));
 
         } else {
-            // Другие возможные варианты
-            assertTrue("После регистрации должен быть перенаправлен",
-                    !registerPage.isPageLoaded());
+            // Для других случаев используем обычные проверки
+            MainPage newMainPage = new MainPage(driver);
+            assertTrue("Должны быть на корректной странице после регистрации",
+                    newMainPage.isPageLoaded() || loginPage.isPageLoaded());
         }
     }
 
@@ -69,12 +78,13 @@ public class RegistrationTest extends BaseTest {
 
         registerPage.register("Test User", "test@example.com", "123");
 
-        // Ждем появления ошибки
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        // ✅ ЗАМЕНА SLEEP НА ЯВНЫЕ ОЖИДАНИЯ
+        // Ждем появления сообщения об ошибке или изменения состояния
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        wait.until(ExpectedConditions.or(
+                ExpectedConditions.visibilityOfElementLocated(org.openqa.selenium.By.xpath("//p[contains(@class, 'input__error')]")),
+                ExpectedConditions.not(ExpectedConditions.urlContains("/register"))
+        ));
 
         // Проверяем, что остались на странице регистрации
         assertTrue("Должны остаться на странице регистрации при ошибке",

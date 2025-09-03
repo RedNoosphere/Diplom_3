@@ -1,5 +1,6 @@
 package praktikum.pages;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -21,10 +22,12 @@ public class ForgotPasswordPage extends BasePage {
         super(driver);
     }
 
+    @Step("Клик на ссылку 'Войти' на странице восстановления пароля")
     public void clickLoginLink() {
         loginLink.click();
     }
 
+    @Step("Проверка загрузки страницы восстановления пароля")
     public boolean isPageLoaded() {
         try {
             new WebDriverWait(driver, Duration.ofSeconds(5))

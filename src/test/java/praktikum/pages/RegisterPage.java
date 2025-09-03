@@ -1,6 +1,6 @@
 package praktikum.pages;
 
-import org.openqa.selenium.By;
+import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -12,7 +12,6 @@ import java.time.Duration;
 
 public class RegisterPage extends BasePage {
 
-    // Исправляем локаторы - используем более специфичные селекторы
     @FindBy(how = How.XPATH, using = "//label[text()='Имя']/following-sibling::input")
     private WebElement nameField;
 
@@ -38,29 +37,35 @@ public class RegisterPage extends BasePage {
         super(driver);
     }
 
+    @Step("Ввод имени: {name}")
     public void setName(String name) {
         nameField.clear();
         nameField.sendKeys(name);
     }
 
+    @Step("Ввод email: {email}")
     public void setEmail(String email) {
         emailField.clear();
         emailField.sendKeys(email);
     }
 
+    @Step("Ввод пароля")
     public void setPassword(String password) {
         passwordField.clear();
         passwordField.sendKeys(password);
     }
 
+    @Step("Клик по кнопке 'Зарегистрироваться'")
     public void clickRegisterButton() {
         registerButton.click();
     }
 
+    @Step("Клик по ссылке 'Войти'")
     public void clickLoginLink() {
         loginLink.click();
     }
 
+    @Step("Получение текста ошибки")
     public String getErrorMessage() {
         try {
             return errorMessage.getText();
@@ -69,6 +74,7 @@ public class RegisterPage extends BasePage {
         }
     }
 
+    @Step("Регистрация пользователя с именем: {name}, email: {email}")
     public void register(String name, String email, String password) {
         setName(name);
         setEmail(email);
@@ -76,6 +82,7 @@ public class RegisterPage extends BasePage {
         clickRegisterButton();
     }
 
+    @Step("Проверка загрузки страницы регистрации")
     public boolean isPageLoaded() {
         try {
             new WebDriverWait(driver, Duration.ofSeconds(5))
@@ -86,15 +93,17 @@ public class RegisterPage extends BasePage {
         }
     }
 
-    // Добавляем метод для отладки - какие значения введены в поля
+    @Step("Получение значения поля 'Имя'")
     public String getNameFieldValue() {
         return nameField.getAttribute("value");
     }
 
+    @Step("Получение значения поля 'Email'")
     public String getEmailFieldValue() {
         return emailField.getAttribute("value");
     }
 
+    @Step("Получение значения поля 'Пароль'")
     public String getPasswordFieldValue() {
         return passwordField.getAttribute("value");
     }
