@@ -3,11 +3,7 @@ package praktikum;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import org.junit.Test;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import praktikum.pages.MainPage;
-
-import java.time.Duration;
 
 import static org.junit.Assert.assertEquals;
 
@@ -19,18 +15,11 @@ public class ConstructorTest extends BaseTest {
     public void testNavigateToBunsSection() {
         MainPage mainPage = new MainPage(driver);
 
-        // Сначала переходим в другой раздел, чтобы был виден переход
-        mainPage.clickSaucesSection();
-
-        // Явное ожидание: ждем, пока раздел "Соусы" станет активным
-        new WebDriverWait(driver, Duration.ofSeconds(5))
-                .until(ExpectedConditions.textToBePresentInElement(mainPage.getActiveSectionElement(), "Соусы"));
-
-        mainPage.clickBunsSection();
-
-        // Явное ожидание: ждем, пока раздел "Булки" станет активным
-        new WebDriverWait(driver, Duration.ofSeconds(5))
-                .until(ExpectedConditions.textToBePresentInElement(mainPage.getActiveSectionElement(), "Булки"));
+        // ✅ ИСПРАВЛЕНИЕ: Используем методы Page Object вместо явных ожиданий
+        mainPage.clickSaucesSection()
+                .waitUntilSectionActive("Соусы")
+                .clickBunsSection()
+                .waitUntilSectionActive("Булки");
 
         String activeSection = mainPage.getActiveSectionText();
         assertEquals("Должен быть активен раздел 'Булки'", "Булки", activeSection);
@@ -42,11 +31,9 @@ public class ConstructorTest extends BaseTest {
     public void testNavigateToSaucesSection() {
         MainPage mainPage = new MainPage(driver);
 
-        mainPage.clickSaucesSection();
-
-        // Явное ожидание: ждем, пока раздел "Соусы" станет активным
-        new WebDriverWait(driver, Duration.ofSeconds(5))
-                .until(ExpectedConditions.textToBePresentInElement(mainPage.getActiveSectionElement(), "Соусы"));
+        // ✅ ИСПРАВЛЕНИЕ: Используем методы Page Object
+        mainPage.clickSaucesSection()
+                .waitUntilSectionActive("Соусы");
 
         String activeSection = mainPage.getActiveSectionText();
         assertEquals("Должен быть активен раздел 'Соусы'", "Соусы", activeSection);
@@ -58,11 +45,9 @@ public class ConstructorTest extends BaseTest {
     public void testNavigateToFillingsSection() {
         MainPage mainPage = new MainPage(driver);
 
-        mainPage.clickFillingsSection();
-
-        // Явное ожидание: ждем, пока раздел "Начинки" станет активным
-        new WebDriverWait(driver, Duration.ofSeconds(5))
-                .until(ExpectedConditions.textToBePresentInElement(mainPage.getActiveSectionElement(), "Начинки"));
+        // ✅ ИСПРАВЛЕНИЕ: Используем методы Page Object
+        mainPage.clickFillingsSection()
+                .waitUntilSectionActive("Начинки");
 
         String activeSection = mainPage.getActiveSectionText();
         assertEquals("Должен быть активен раздел 'Начинки'", "Начинки", activeSection);

@@ -5,10 +5,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
 
 public class LoginPage extends BasePage {
 
@@ -35,47 +31,60 @@ public class LoginPage extends BasePage {
     }
 
     @Step("Ввод email: {email}")
-    public void setEmail(String email) {
+    public LoginPage setEmail(String email) {
         emailField.clear();
         emailField.sendKeys(email);
+        return this;
     }
 
     @Step("Ввод пароля")
-    public void setPassword(String password) {
+    public LoginPage setPassword(String password) {
         passwordField.clear();
         passwordField.sendKeys(password);
+        return this;
     }
 
     @Step("Клик по кнопке 'Войти'")
-    public void clickLoginButton() {
+    public MainPage clickLoginButton() {
+        waitUntilClickable(loginButton);
         loginButton.click();
+        return new MainPage(driver).waitUntilPageIsLoaded();
     }
 
     @Step("Клик по ссылке 'Зарегистрироваться'")
-    public void clickRegisterLink() {
+    public RegisterPage clickRegisterLink() {
+        waitUntilClickable(registerLink);
         registerLink.click();
+        return new RegisterPage(driver);
     }
 
     @Step("Клик по ссылке 'Восстановить пароль'")
-    public void clickForgotPasswordLink() {
+    public ForgotPasswordPage clickForgotPasswordLink() {
+        waitUntilClickable(forgotPasswordLink);
         forgotPasswordLink.click();
+        return new ForgotPasswordPage(driver);
     }
 
-    @Step("Выполнение входа с email: {email}")
-    public void login(String email, String password) {
+    @Step("Выполнение входа с email: {email} и переход на главную страницу")
+    public MainPage login(String email, String password) {
         setEmail(email);
         setPassword(password);
-        clickLoginButton();
+        return clickLoginButton();
+    }
+
+    @Step("Ожидание загрузки страницы входа")
+    public LoginPage waitUntilPageIsLoaded() {
+        waitUntilVisible(loginHeader);
+        return this;
     }
 
     @Step("Проверка загрузки страницы входа")
     public boolean isPageLoaded() {
-        try {
-            new WebDriverWait(driver, Duration.ofSeconds(5))
-                    .until(ExpectedConditions.visibilityOf(loginHeader));
-            return driver.getCurrentUrl().contains("/login") && loginHeader.isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
+        return isElementVisible(loginHeader) && driver.getCurrentUrl().contains("/login");
+    }
+
+    @Step("Получение текущего URL")
+    public String getCurrentUrl() {
+        return driver.getCurrentUrl();
     }
 }

@@ -5,10 +5,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
 
 public class ForgotPasswordPage extends BasePage {
 
@@ -22,19 +18,24 @@ public class ForgotPasswordPage extends BasePage {
         super(driver);
     }
 
+    // ✅ ИСПРАВЛЕНИЕ: Метод теперь возвращает LoginPage
     @Step("Клик на ссылку 'Войти' на странице восстановления пароля")
-    public void clickLoginLink() {
+    public LoginPage clickLoginLink() {
+        waitUntilClickable(loginLink);
         loginLink.click();
+        return new LoginPage(driver);
     }
 
+    // ✅ ОПТИМИЗИРУЕМ: Используем wait из BasePage
+    @Step("Ожидание загрузки страницы восстановления пароля")
+    public ForgotPasswordPage waitUntilPageIsLoaded() {
+        waitUntilVisible(forgotPasswordHeader);
+        return this;
+    }
+
+    // ✅ ОПТИМИЗИРУЕМ: Упрощаем метод проверки
     @Step("Проверка загрузки страницы восстановления пароля")
     public boolean isPageLoaded() {
-        try {
-            new WebDriverWait(driver, Duration.ofSeconds(5))
-                    .until(ExpectedConditions.visibilityOf(forgotPasswordHeader));
-            return driver.getCurrentUrl().contains("/forgot-password");
-        } catch (Exception e) {
-            return false;
-        }
+        return isElementVisible(forgotPasswordHeader) && driver.getCurrentUrl().contains("/forgot-password");
     }
 }

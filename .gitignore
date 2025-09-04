@@ -7,9 +7,10 @@
 # Allure
 .allure/
 allure-results/
+!allure-report/
 
 # Maven
-target/
+!target/allure-report/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup

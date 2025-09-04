@@ -25,46 +25,55 @@ public class BaseTest {
             System.out.println("Создан тестовый пользователь: " + testUser.getEmail());
 
             // Инициализируем браузер
-            WebDriverManager.chromedriver().setup();
-            ChromeOptions options = new ChromeOptions();
-            options.addArguments("--remote-allow-origins=*");
-            options.addArguments("--disable-notifications");
-            options.addArguments("--start-maximized");
-            driver = new ChromeDriver(options);
-            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+            initializeDriver();
+
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+            driver.manage().window().maximize();
             driver.get("https://stellarburgers.nomoreparties.site");
+
         } catch (Exception e) {
-            // Если что-то пошло не так при инициализации, убедимся что ресурсы освобождены
-            if (driver != null) {
-                driver.quit();
-            }
-            // Пытаемся удалить пользователя, если он был создан
-            if (testUser != null && testUser.getAccessToken() != null) {
-                UserAPI.deleteUser(testUser.getAccessToken());
-            }
+            cleanupResources();
             throw new RuntimeException("Ошибка при инициализации теста", e);
         }
+    }
+
+    private void initializeDriver() {
+        WebDriverManager.chromedriver().setup();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
+        options.addArguments("--disable-notifications");
+        options.addArguments("--start-maximized");
+        driver = new ChromeDriver(options);
     }
 
     @After
     @DisplayName("Закрытие браузера и удаление тестового пользователя")
     public void tearDown() {
+        cleanupResources();
+    }
+
+    private void cleanupResources() {
+        closeDriver();
+        deleteTestUser();
+    }
+
+    private void closeDriver() {
         try {
-            // Всегда закрываем браузер, даже если тест упал
             if (driver != null) {
                 driver.quit();
-                driver = null; // Помечаем как закрытый
+                driver = null;
             }
         } catch (Exception e) {
             System.err.println("Ошибка при закрытии браузера: " + e.getMessage());
         }
+    }
 
+    private void deleteTestUser() {
         try {
-            // Удаляем тестового пользователя
             if (testUser != null && testUser.getAccessToken() != null) {
                 UserAPI.deleteUser(testUser.getAccessToken());
                 System.out.println("Удален тестовый пользователь: " + testUser.getEmail());
-                testUser = null; // Помечаем как удаленного
+                testUser = null;
             }
         } catch (Exception e) {
             System.err.println("Ошибка при удалении пользователя: " + e.getMessage());

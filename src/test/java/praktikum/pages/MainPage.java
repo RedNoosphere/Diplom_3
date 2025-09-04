@@ -6,9 +6,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
 
 public class MainPage extends BasePage {
 
@@ -38,33 +35,44 @@ public class MainPage extends BasePage {
     }
 
     @Step("Клик по кнопке 'Войти в аккаунт'")
-    public void clickLoginButton() {
+    public LoginPage clickLoginButton() {
+        waitUntilClickable(loginButton);
         loginButton.click();
+        return new LoginPage(driver);
     }
 
     @Step("Клик по кнопке 'Личный Кабинет'")
-    public void clickPersonalAccountButton() {
+    public LoginPage clickPersonalAccountButton() {
+        waitUntilClickable(personalAccountButton);
         personalAccountButton.click();
+        return new LoginPage(driver);
     }
 
     @Step("Клик по разделу 'Булки'")
-    public void clickBunsSection() {
+    public MainPage clickBunsSection() {
+        waitUntilClickable(bunsSection);
         bunsSection.click();
+        return this;
     }
 
     @Step("Клик по разделу 'Соусы'")
-    public void clickSaucesSection() {
+    public MainPage clickSaucesSection() {
+        waitUntilClickable(saucesSection);
         saucesSection.click();
+        return this;
     }
 
     @Step("Клик по разделу 'Начинки'")
-    public void clickFillingsSection() {
+    public MainPage clickFillingsSection() {
+        waitUntilClickable(fillingsSection);
         fillingsSection.click();
+        return this;
     }
 
-    @Step("Получение текста активного раздела")
-    public String getActiveSectionText() {
-        return activeSection.getText();
+    @Step("Ожидание активации раздела: {sectionName}")
+    public MainPage waitUntilSectionActive(String sectionName) {
+        wait.until(ExpectedConditions.textToBePresentInElement(activeSection, sectionName));
+        return this;
     }
 
     @Step("Получение элемента активного раздела")
@@ -72,46 +80,52 @@ public class MainPage extends BasePage {
         return activeSection;
     }
 
+    @Step("Получение текста активного раздела")
+    public String getActiveSectionText() {
+        waitUntilVisible(activeSection);
+        return activeSection.getText();
+    }
+
+    @Step("Ожидание загрузки главной страницы")
+    public MainPage waitUntilPageIsLoaded() {
+        wait.until(ExpectedConditions.or(
+                ExpectedConditions.visibilityOf(loginButton),
+                ExpectedConditions.visibilityOf(placeOrderButton)
+        ));
+        return this;
+    }
+
+    @Step("Проверка авторизации пользователя")
+    public boolean isUserLoggedIn() {
+        try {
+            return placeOrderButton.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     @Step("Проверка загрузки главной страницы")
     public boolean isPageLoaded() {
         try {
-            // Ждем появления либо кнопки входа (для неавторизованного пользователя),
-            // либо кнопки оформления заказа (для авторизованного)
-            new WebDriverWait(driver, Duration.ofSeconds(10))
-                    .until(ExpectedConditions.or(
-                            ExpectedConditions.visibilityOf(loginButton),
-                            ExpectedConditions.visibilityOf(placeOrderButton)
-                    ));
+            waitUntilPageIsLoaded();
             return true;
         } catch (Exception e) {
             return false;
         }
     }
 
-    @Step("Проверка авторизации пользователя")
-    public boolean isUserLoggedIn() {
-        try {
-            // Проверяем несколько признаков того, что пользователь залогинен:
+    @Step("Проверка видимости кнопки 'Оформить заказ'")
+    public boolean isPlaceOrderButtonVisible() {
+        return isElementVisible(placeOrderButton);
+    }
 
-            // 1. Кнопка "Оформить заказ"
-            boolean hasOrderButton = placeOrderButton.isDisplayed();
+    @Step("Проверка видимости кнопки 'Войти в аккаунт'")
+    public boolean isLoginButtonVisible() {
+        return isElementVisible(loginButton);
+    }
 
-            // 2. Измененный текст в личном кабинете (если есть)
-            boolean personalAccountTextChanged = false;
-            try {
-                personalAccountTextChanged = !personalAccountButton.getText().equals("Личный Кабинет");
-            } catch (Exception e) {
-                // Игнорируем, если элемент не найден
-            }
-
-            // 3. URL может содержать признак авторизации
-            String currentUrl = driver.getCurrentUrl();
-            boolean isOnAuthorizedPage = !currentUrl.contains("/login") &&
-                    !currentUrl.contains("/register");
-
-            return hasOrderButton || personalAccountTextChanged || isOnAuthorizedPage;
-        } catch (Exception e) {
-            return false;
-        }
+    @Step("Получение текущего URL")
+    public String getCurrentUrl() {
+        return driver.getCurrentUrl();
     }
 }
